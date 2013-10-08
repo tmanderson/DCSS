@@ -56,7 +56,6 @@ var DCSS = (function() {
 		rules.forEach(function(rule) {
 			sheet.appendChild(document.createTextNode(rule.join(' ').replace(',', ';')));
 		});
-		console.log(scopes)
 	}
 
 	function clear(scopeName) {
