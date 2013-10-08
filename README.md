@@ -1,5 +1,5 @@
 # DCSS
-## Simple dynamic CSS. No frills. Really.
+## Simple dynamic CSS. Nothing else. Really.
 
 SASS and LESS are great and all, but sometimes your find yourself using a wrench to
 replace a lightbulb. Things get sloppy, and no body likes sloppily disorganized code.
