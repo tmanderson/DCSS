@@ -101,15 +101,15 @@ DCSS.clear('global');
 Create, or retrieve a scope. `scope` is basically a flipped alternative to `add`
 where the only difference is it returns a reference to the scope.
 
+```JavaScript
+DCSS.scope(); // returns all scopes
+DCSS.scope('global'); // returns the global scope
+DCSS.scope('new', {div: { width: '100%' }}); // creates the scope 'new' with a 'div' rule
+```
+
 #### `selector(sel, function)`
 Create a custom selector by providing the selector as a string (e.g. `<~`) and a
 function that will be called whenever the selector is encountered. The supplied
 function is given a total of four arguments, `leftSelector`, `rightSelector`, `fullSelector`,
 and `styles`. Your function should return a set of styles that will be assigned to their
 specified scope.
-
-```JavaScript
-DCSS.scope(); // returns all scopes
-DCSS.scope('global'); // returns the global scope
-DCSS.scope('new', {div: { width: '100%' }}); // creates the scope 'new' with a 'div' rule
-```
