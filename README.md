@@ -3,12 +3,17 @@
 
 SASS and LESS are great and all, but sometimes your find yourself using a wrench to
 replace a lightbulb. Things get sloppy, and no body likes sloppily disorganized code.
+Out of the box, DCSS adds **style scopes**, **dynamic values** and an interface to add
+**custom selectors**.
 
+### Style Scopes
 DCSS creates 'scoped' styles that can easily be added, altered, or removed. By default,
 DCSS creates a 'global' scope, whose `style` element is automatically appended to the
-`head` element of the document. The biggest benefit (and the real reason for the creation
-of DCSS) is the ability to set style properties to functions, whose return value will
-be the property value. As an example:
+`head` element of the document.
+
+### Dynamic Values
+Dynamic values are just plain CSS attributes whose values are a JavaScript function that
+when executed, returns the value to be assigned. As an example:
 
 ```JavaScript
 DCSS.add({
@@ -29,6 +34,33 @@ h2 {
 ```
 
 assuming that the body's offsetWidth is 1820px.
+
+### Custom Attributes
+Custom attributes enable the ability to add custom attributes to your DCSS declarations.
+When a custom attribute is encountered by the DCSS parser, it will call the associated
+function along with it. Custom attributes enable you to do a lot of things, since the
+associated function is passed its selectors context, the full selector, as well as the
+styles associated with it. As an example:
+
+```JavaScript
+DCSS.selector('<~', function(leftSelector, rightSelector, fullSelector, styles) {
+	var sibs = document.querySelectorAll(rightSelector),
+		output = {};
+
+	output.isPreviousSiblingOf = styles;
+
+	for(var i = 0; i < sibs.length; i++) {
+		if(sibs[i].previousElementSibling.webkitMatchesSelector(leftSelector)) {
+			sibs[i].previousElementSibling.className += ' isPreviousSiblingOf';
+		}
+	}
+
+	return output;
+});
+```
+
+This would enable a `previousSibling` CSS selector, which means that a style such as
+`h2 <~ h3` would style all `h2` elements whose next sibling is an `h3` element.
 
 ### API
 #### `add(styles, [scope])`
@@ -69,6 +101,12 @@ DCSS.clear('global');
 Create, or retrieve a scope. `scope` is basically a flipped alternative to `add`
 where the only difference is it returns a reference to the scope.
 
+#### `selector(sel, function)`
+Create a custom selector by providing the selector as a string (e.g. `<~`) and a
+function that will be called whenever the selector is encountered. The supplied
+function is given a total of four arguments, `leftSelector`, `rightSelector`, `fullSelector`,
+and `styles`. Your function should return a set of styles that will be assigned to their
+specified scope.
 
 ```JavaScript
 DCSS.scope(); // returns all scopes
