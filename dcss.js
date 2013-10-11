@@ -1,11 +1,44 @@
 var DCSS = (function() {
-	var scopes = {};
+	var scopes  	= {},
+		selectors 	= [],
+		psuedos 	= [];
 
 	createScope('global');
 
+	function processSelectors(styles) {
+		var getSelectors 	= /([\#\.\w]*)\s*([^#\.\s]+)\s*([\w\#\.]+)$/,
+			output 			= {},
+			sel, tokens, result;
+
+		for(var p in styles) {
+			result = null;
+			selector = p;
+
+			if(typeof styles[p] !== 'string') {
+				for(var s in selectors) {
+					tokens = (selector.match(getSelectors) || []).slice(1);
+					if(tokens.length) {
+						sel = tokens.splice(1,1)[0].replace(/^\s+|\s+$/g, '');
+						if(selectors[s].value === sel) {
+							result = selectors[s].process.apply(this, tokens.concat([selector, styles[p]]));
+							if(/object/.test(result.toString())) {
+								for(var p in result) output[p] = result[p];
+							}
+						}
+					}
+				}
+			}
+
+			if(!result) output[selector] = styles[selector];
+		}
+
+		return output;
+	}
+
 	function createRules(styles, scope) {
-		var scopes 	= [],
-			rules 	= [];
+		var scopes 		= [],
+			rules 		= [],
+			styles 		= processSelectors(styles);
 
 		for(var s in styles) {
 			if(/object/.test(styles[s].toString())) {
@@ -18,7 +51,7 @@ var DCSS = (function() {
 			var ruleText 	= ['{'],
 				name  		= '';
 
-			for(var s in styles) {
+			for(s in styles) {
 				name = s.replace(/[A-Z]/g, '-$&').toLowerCase();
 				if(typeof styles[s] === 'function') styles[s] = styles[s]();
 				ruleText.push(['\t', name, ': ', styles[s], ';', '\n'].join(''));
@@ -44,7 +77,7 @@ var DCSS = (function() {
 
 		scopes[name] = el;
 		if(styles) add(styles, name);
-		return scopes[name]
+		return scopes[name];
 	}
 
 	function add(styles, root) {
@@ -62,9 +95,17 @@ var DCSS = (function() {
 		scopes[scopeName].innerHTML = '';
 	}
 
+	function createSelector(selector, fn) {
+		selectors.push({
+			value 	: selector,
+			process : fn
+		});
+	}
+
 	return {
 		add 	: add,
 		clear 	: clear,
-		scope 	: createScope
+		scope 	: createScope,
+		selector: createSelector
 	};
 })();
